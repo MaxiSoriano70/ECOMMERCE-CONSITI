@@ -1,6 +1,7 @@
 package ecommerce.consiti.ecommerce.service;
 
 import ecommerce.consiti.ecommerce.entity.Customer;
+import ecommerce.consiti.ecommerce.entity.Order;
 import ecommerce.consiti.ecommerce.entity.OrderItem;
 
 import java.util.List;
@@ -12,4 +13,5 @@ public interface IOrdenItemService {
     List<OrderItem> searchAll();
     boolean updateOrderItem(Integer id, OrderItem orderItem);
     void deleteOrderItem(Integer id);
+    List<OrderItem> findByOrder(Order order);
 }

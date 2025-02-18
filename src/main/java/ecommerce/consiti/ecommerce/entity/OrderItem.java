@@ -33,10 +33,21 @@ public class OrderItem {
         if (quantity == null || quantity < 1) {
             quantity = 1;
         }
-        if (product != null) {
-            preci = product.getPrice() * quantity;
+
+        if (product == null) {
+            throw new IllegalStateException("El producto no puede ser nulo en OrderItem");
         }
+
+        if (product.getPrice() == null) {
+            throw new IllegalStateException("El precio del producto no puede ser nulo en OrderItem");
+        }
+
+        preci = product.getPrice() * quantity;
+
         if (order != null) {
+            if (order.getTotalAmount() == null) {
+                order.setTotalAmount(0.0f);
+            }
             order.setTotalAmount(order.getTotalAmount() + preci);
         }
     }

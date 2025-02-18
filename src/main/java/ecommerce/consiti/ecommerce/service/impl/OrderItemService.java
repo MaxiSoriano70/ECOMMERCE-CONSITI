@@ -8,6 +8,7 @@ import ecommerce.consiti.ecommerce.repository.IOrderItemRepository;
 import ecommerce.consiti.ecommerce.repository.IOrderRepository;
 import ecommerce.consiti.ecommerce.repository.IProductRepository;
 import ecommerce.consiti.ecommerce.service.IOrdenItemService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,24 +29,43 @@ public class OrderItemService implements IOrdenItemService {
     @Autowired
     private IProductRepository productRepository;
 
+    @Transactional
     @Override
     public OrderItem createOrderItem(OrderItem orderItem) {
-        Optional<Product> productOptional = productRepository.findById(orderItem.getProduct().getProductId());
-        if (!productOptional.isPresent()) {
-            throw new IllegalArgumentException("El producto no existe");
+        /*Buscmos producto y orden*/
+        Product product = productRepository.findById(orderItem.getProduct().getProductId())
+                .orElseThrow(() -> new IllegalArgumentException("El producto no existe"));
+
+        Order order = orderRepository.findById(orderItem.getOrder().getOrderId())
+                .orElseThrow(() -> new IllegalArgumentException("La orden no existe"));
+
+        /*Validamos*/
+        if (product.getPrice() == null) {
+            throw new IllegalArgumentException("El producto tiene precio NULL");
         }
-        Product product = productOptional.get();
+
         if (orderItem.getQuantity() == null || orderItem.getQuantity() < 1) {
             throw new IllegalArgumentException("La cantidad debe ser mayor que 0");
         }
+
+        /*Calcular precio del OrderItem*/
         orderItem.setPreci(product.getPrice() * orderItem.getQuantity());
-        Optional<Order> orderOptional = orderRepository.findById(orderItem.getOrder().getOrderId());
-        if (!orderOptional.isPresent()) {
-            throw new IllegalArgumentException("La orden no existe");
-        }
-        Order order = orderOptional.get();
-        order.setTotalAmount(order.getTotalAmount() + orderItem.getPreci());
+
+        /*Obtener los ítems existentes de la orden*/
+        List<OrderItem> existingItems = orderItemRepository.findByOrder(order);
+
+        /* Calcular el total actual de la orden*/
+        float currentTotal = existingItems.stream()
+                .map(OrderItem::getPreci)
+                .reduce(0.0f, Float::sum);
+
+        /* Actualizar el total de la orden*/
+        order.setTotalAmount(currentTotal + orderItem.getPreci());
+
+        /*Asignar la orden y el producto al OrderItem*/
         orderItem.setOrder(order);
+        orderItem.setProduct(product);
+
         return orderItemRepository.save(orderItem);
     }
 
@@ -100,5 +120,10 @@ public class OrderItemService implements IOrdenItemService {
             }
             orderItemRepository.deleteById(id);
         }
+    }
+
+    @Override
+    public List<OrderItem> findByOrder(Order order) {
+        return orderItemRepository.findByOrder(order);
     }
 }
