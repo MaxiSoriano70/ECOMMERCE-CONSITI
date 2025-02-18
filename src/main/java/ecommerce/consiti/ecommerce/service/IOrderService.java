@@ -10,6 +10,6 @@ public interface IOrderService {
     Order createOrder(Order order);
     Optional<Order> searchForId(int id);
     List<Order> searchAll();
-    void updateOrder(Order order);
+    boolean updateOrder(Integer id, Order order);
     void deleteOrder(Integer id);
 }

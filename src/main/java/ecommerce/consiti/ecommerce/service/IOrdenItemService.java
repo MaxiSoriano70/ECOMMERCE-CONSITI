@@ -10,6 +10,6 @@ public interface IOrdenItemService {
     OrderItem createOrderItem(OrderItem orderItem);
     Optional<OrderItem> searchForId(int id);
     List<OrderItem> searchAll();
-    void updateOrderItem(OrderItem orderItem);
+    boolean updateOrderItem(Integer id, OrderItem orderItem);
     void deleteOrderItem(Integer id);
 }

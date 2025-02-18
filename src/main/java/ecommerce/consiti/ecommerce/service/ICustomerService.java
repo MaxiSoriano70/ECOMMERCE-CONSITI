@@ -9,6 +9,6 @@ public interface ICustomerService {
     Customer createCustomer(Customer customer);
     Optional<Customer> searchForId(int id);
     List<Customer> searchAll();
-    void updateCustomer(Customer customer);
+    boolean updateCustomer(Integer id, Customer customer);
     void deleteCustomer(Integer id);
 }

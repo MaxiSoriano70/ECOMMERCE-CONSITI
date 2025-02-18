@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/Order")
+@RequestMapping("/order")
 public class OrderController {
     public IOrderService orderService;
 
@@ -42,16 +42,17 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-    @PutMapping
-    public ResponseEntity<String> actualizarOrden(@RequestBody Order order){
-        Optional<Order> ordenOptional = orderService.searchForId(order.getOrderId());
-        if (ordenOptional.isPresent()) {
-            orderService.updateOrder(order);
+    @PutMapping("/{id}")
+    public ResponseEntity<String> actualizarOrden(@PathVariable Integer id, @RequestBody Order order) {
+        boolean actualizado = orderService.updateOrder(id, order);
+
+        if (actualizado) {
             return ResponseEntity.ok("{\"message\": \"orden modificada\"}");
         } else {
             return new ResponseEntity<>("{\"message\": \"orden no encontrada\"}", HttpStatus.NOT_FOUND);
         }
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> borrarOrden(@PathVariable Integer id){

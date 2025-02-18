@@ -18,35 +18,38 @@ public class CustomerController {
     public CustomerController(ICustomerService customerService) {
         this.customerService = customerService;
     }
+
     @PostMapping
-    public ResponseEntity<Customer> crearCliente(@RequestBody Customer customer){
+    public ResponseEntity<Customer> crearCliente(@RequestBody Customer customer) {
         Customer clienteARetornar = customerService.createCustomer(customer);
-        if(clienteARetornar == null){
+        if (clienteARetornar == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }else {
+        } else {
             return ResponseEntity.status(HttpStatus.CREATED).body(clienteARetornar);
         }
     }
+
     @GetMapping
-    public ResponseEntity<List<Customer>> traerTodos(){
+    public ResponseEntity<List<Customer>> traerTodos() {
         return ResponseEntity.ok(customerService.searchAll());
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<Customer> buscarClientePorId(@PathVariable Integer id){
+    public ResponseEntity<Customer> buscarClientePorId(@PathVariable Integer id) {
         Optional<Customer> cliente = customerService.searchForId(id);
-        if(cliente.isPresent()){
+        if (cliente.isPresent()) {
             Customer clienteARetornar = cliente.get();
             return ResponseEntity.ok(clienteARetornar);
-        }
-        else{
+        } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
-    @PutMapping
-    public ResponseEntity<String> actualizarCliente(@RequestBody Customer customer){
-        Optional<Customer> clienteOptional = customerService.searchForId(customer.getCustomerId());
-        if (clienteOptional.isPresent()) {
-            customerService.updateCustomer(customer);
+
+    @PutMapping("/{id}")
+    public ResponseEntity<String> actualizarCliente(@PathVariable Integer id, @RequestBody Customer customer) {
+        boolean actualizado = customerService.updateCustomer(id, customer);
+
+        if (actualizado) {
             return ResponseEntity.ok("{\"message\": \"cliente modificado\"}");
         } else {
             return new ResponseEntity<>("{\"message\": \"cliente no encontrado\"}", HttpStatus.NOT_FOUND);
